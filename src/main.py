@@ -8,16 +8,29 @@ import time
 import logging
 import socketserver as SocketServer
 
-if __name__ == "__main__":
-    logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', filename='proxy.log', level=logging.INFO,
-                        datefmt='%H:%M:%S')
-    logging.info(time.strftime("%a, %d %b %Y %H:%M:%S ", time.localtime()))
+
+def startServer():
+    host = '0.0.0.0'
+    port = 5060
+
+    # Changing IP recognition according to Linux systems
     hostname = socket.gethostname()
-    logging.info(hostname)
-    ipaddress = socket.gethostbyname(hostname)
-    ipaddress = "192.168.68.106"
-    logging.info(ipaddress)
-    sipfullproxy.recordroute = "Record-Route: <sip:%s:%d;lr>" % (ipaddress, sipfullproxy.PORT)
-    sipfullproxy.topvia = "Via: SIP/2.0/UDP %s:%d" % (ipaddress, sipfullproxy.PORT)
-    server = SocketServer.UDPServer((sipfullproxy.HOST, sipfullproxy.PORT), sipfullproxy.UDPHandler)
+
+    if len(sys.argv) > 0:
+        ipaddress = sys.argv[0]
+    else:
+        my_ip = socket.gethostbyname_ex(hostname)[-1]
+        ipaddress = my_ip[1]
+
+    # Logs
+    logging.basicConfig(format='(%(asctime)s) > %(message)s', filename='proxy.txt', level=logging.INFO,
+                        datefmt='%a, %d %b %Y %H:%M:%S')
+    logging.info('Proxy server spusten￿ý na Host: %s, Port: %d', host, port)
+
+    sipfullproxy.recordroute = "Record-Route: <sip:%s:%d;lr>" % (ipaddress, port)
+    sipfullproxy.topvia = "Via: SIP/2.0/UDP %s:%d" % (ipaddress, port)
+    server = SocketServer.UDPServer((host,port), sipfullproxy.UDPHandler)
+    print("Server is running...")
+
     server.serve_forever()
+

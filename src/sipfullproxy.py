@@ -22,7 +22,6 @@ import sys
 import time
 import logging
 
-HOST, PORT = '0.0.0.0', 5060
 rx_register = re.compile("^REGISTER")
 rx_invite = re.compile("^INVITE")
 rx_ack = re.compile("^ACK")
@@ -250,7 +249,7 @@ class UDPHandler(SocketServer.BaseRequestHandler):
         if expires == 0:
             if fromm in registrar:
                 del registrar[fromm]
-                self.sendResponse("200 0K")
+                self.sendResponse("200 PARADICKA 0K")
                 return
         else:
             now = int(time.time())
@@ -261,7 +260,7 @@ class UDPHandler(SocketServer.BaseRequestHandler):
         logging.debug("Expires= %d" % expires)
         registrar[fromm] = [contact, self.socket, self.client_address, validity]
         self.debugRegister()
-        self.sendResponse("200 0K")
+        self.sendResponse("200 PARADICKA 0K")
 
     def processInvite(self):
         logging.debug("-----------------")
@@ -269,11 +268,11 @@ class UDPHandler(SocketServer.BaseRequestHandler):
         logging.debug("-----------------")
         origin = self.getOrigin()
         if len(origin) == 0 or not origin in registrar:
-            self.sendResponse("400 Bad Request")
+            self.sendResponse("400 Bad Request Not Gut Fešáčik")
             return
         destination = self.getDestination()
         if len(destination) > 0:
-            logging.info("destination %s" % destination)
+            logging.info('Zariadenie %s volá zariadeniu %s', origin.split("@")[0],destination.split("@")[0])
             if destination in registrar and self.checkValidity(destination):
                 socket, claddr = self.getSocketInfo(destination)
                 # self.changeRequestUri()
@@ -317,11 +316,12 @@ class UDPHandler(SocketServer.BaseRequestHandler):
         logging.debug("----------------------")
         origin = self.getOrigin()
         if len(origin) == 0 or not origin in registrar:
-            self.sendResponse("400 Bad Request")
+            self.sendResponse("400 Bad Request Not Gut Fešáčik")
             return
         destination = self.getDestination()
         if len(destination) > 0:
-            logging.info("destination %s" % destination)
+            logging.info('Zariadenie %s volá zariadeniu %s', origin.split("@")[0], destination.split("@")[0])
+            logging.debug("destination %s" % destination)
             if destination in registrar and self.checkValidity(destination):
                 socket, claddr = self.getSocketInfo(destination)
                 # self.changeRequestUri()
@@ -335,7 +335,7 @@ class UDPHandler(SocketServer.BaseRequestHandler):
                 logging.info("<<< %s" % data[0])
                 logging.debug("---\n<< server send [%d]:\n%s\n---" % (len(text), text))
             else:
-                self.sendResponse("406 Not Acceptable")
+                self.sendResponse("406 Nehorázne")
         else:
             self.sendResponse("500 Server Internal Error")
 
@@ -380,11 +380,11 @@ class UDPHandler(SocketServer.BaseRequestHandler):
             elif rx_update.search(request_uri):
                 self.processNonInvite()
             elif rx_subscribe.search(request_uri):
-                self.sendResponse("200 0K")
+                self.sendResponse("200 PARADICKA 0K")
             elif rx_publish.search(request_uri):
-                self.sendResponse("200 0K")
+                self.sendResponse("200 PARADICKA 0K")
             elif rx_notify.search(request_uri):
-                self.sendResponse("200 0K")
+                self.sendResponse("200 PARADICKA 0K")
             elif rx_code.search(request_uri):
                 self.processCode()
             else:
